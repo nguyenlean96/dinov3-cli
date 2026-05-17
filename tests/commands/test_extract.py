@@ -1,4 +1,5 @@
-import re
+import time
+import pytest
 from typer.testing import CliRunner
 import numpy as np
 from PIL import Image
@@ -6,6 +7,10 @@ from PIL import Image
 from src.cli import app
 
 runner = CliRunner()
+
+@pytest.fixture(autouse=True)
+def pause_between_tests() -> None:
+    time.sleep(2)
 
 def test_extract_command_help():
     """Test that the help message displays correctly."""
