@@ -1,5 +1,6 @@
 import time
 import pytest
+import click
 from typer.testing import CliRunner
 import numpy as np
 from PIL import Image
@@ -16,9 +17,13 @@ def test_extract_command_help():
     """Test that the help message displays correctly."""
     result = runner.invoke(app, ["extract", "--help"])
     assert result.exit_code == 0
-    assert "Extract dense features from images" in result.output
-    assert "--pool" in result.output
-    assert "--model" in result.output
+    
+    # Strip ANSI colors to make assertions safe across all environments (like CI)
+    clean_output = click.unstyle(result.output)
+    
+    assert "Extract dense features from images" in clean_output
+    assert "--pool" in clean_output
+    assert "--model" in clean_output
 
 def test_extract_command_mocked(mocker, tmp_path):
     """Test the extract command with mocked models to avoid downloading weights."""
