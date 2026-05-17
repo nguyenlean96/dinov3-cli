@@ -1,3 +1,4 @@
+import re
 from typer.testing import CliRunner
 import numpy as np
 from PIL import Image
@@ -9,9 +10,13 @@ runner = CliRunner()
 def test_extract_command_help():
     """Test that the help message displays correctly."""
     result = runner.invoke(app, ["extract", "--help"])
+    print(result.output)
     assert result.exit_code == 0
     assert "Extract dense features from images" in result.output
-    assert "--pool" in result.output
+    # Strip ANSI codes and check for pool flag flexibly
+    clean_output = re.sub(r'\x1b\[[0-9;]*m', '', result.output)
+    print(result.output)
+    assert "--pool" in clean_output
     assert "--model" in result.output
 
 def test_extract_command_mocked(mocker, tmp_path):

@@ -34,7 +34,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Run tests
-        run: uv run python -m pytest -v --junitxml=test-results.xml
+        run: uv run python -m pytest -v --junitxml=test-results.xml --capture=tee-sys
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
