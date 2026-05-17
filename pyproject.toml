@@ -32,12 +32,19 @@ dev = [
   "types-ujson"
 ]
 
+# pyproject.toml additions needed:
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+dinov3-cli = "dinov3_cli.cli:app"
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
-
-# [tool.setuptools.packages.find]
-# where = ["src"]
 
 [tool.ruff]
 line-length = 120
