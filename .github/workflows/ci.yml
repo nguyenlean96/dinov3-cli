@@ -28,7 +28,7 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Run tests
-        run: pytest -v --junitxml=test-results.xml
+        run: python -m pytest -v --junitxml=test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
