@@ -1,4 +1,3 @@
-from pathlib import Path
 from typer.testing import CliRunner
 import numpy as np
 from PIL import Image

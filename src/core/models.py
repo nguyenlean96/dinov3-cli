@@ -1,4 +1,3 @@
-import torch
 from pathlib import Path
 from typing import Optional, Union, Tuple
 from transformers import AutoImageProcessor, AutoModel

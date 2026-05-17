@@ -1,6 +1,5 @@
 import torch
 from PIL import Image
-from typing import Union, Dict
 import numpy as np
 
 class FeatureExtractor:
