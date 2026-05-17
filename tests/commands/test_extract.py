@@ -1,23 +1,29 @@
-import re
+import time
+import pytest
+import click
 from typer.testing import CliRunner
 import numpy as np
 from PIL import Image
 
-from src.cli import app
+from dinov3_cli.cli import app
 
 runner = CliRunner()
+
+@pytest.fixture(autouse=True)
+def pause_between_tests() -> None:
+    time.sleep(2)
 
 def test_extract_command_help():
     """Test that the help message displays correctly."""
     result = runner.invoke(app, ["extract", "--help"])
-    print(result.output)
     assert result.exit_code == 0
-    assert "Extract dense features from images" in result.output
-    # Strip ANSI codes and check for pool flag flexibly
-    clean_output = re.sub(r'\x1b\[[0-9;]*m', '', result.output)
-    print(result.output)
+    
+    # Strip ANSI colors to make assertions safe across all environments (like CI)
+    clean_output = click.unstyle(result.output)
+    
+    assert "Extract dense features from images" in clean_output
     assert "--pool" in clean_output
-    assert "--model" in result.output
+    assert "--model" in clean_output
 
 def test_extract_command_mocked(mocker, tmp_path):
     """Test the extract command with mocked models to avoid downloading weights."""
@@ -32,7 +38,7 @@ def test_extract_command_mocked(mocker, tmp_path):
     mock_processor = mocker.MagicMock()
     
     mocker.patch(
-        "src.commands.extract.ModelLoader.load",
+        "dinov3_cli.commands.extract.ModelLoader.load",
         return_value=(mock_model, mock_processor)
     )
     
@@ -42,7 +48,7 @@ def test_extract_command_mocked(mocker, tmp_path):
     mock_extractor_instance.extract.return_value = dummy_features
     
     mocker.patch(
-        "src.commands.extract.FeatureExtractor",
+        "dinov3_cli.commands.extract.FeatureExtractor",
         return_value=mock_extractor_instance
     )
     
