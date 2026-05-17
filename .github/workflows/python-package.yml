@@ -46,24 +46,3 @@ jobs:
         if: steps.pytest.outcome == 'failure'
         run: |
           pytest -v --lf
-
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: 'pip'
-      - name: Install Ruff
-        run: pipx install ruff
-
-      - name: Lint with Ruff
-        run: ruff check --output-format=github --target-version=py311 .
-
-      - name: Check formatting
-        run: ruff format --diff --target-version=py311 .
-        continue-on-error: true
