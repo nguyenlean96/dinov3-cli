@@ -4,7 +4,7 @@ from typer.testing import CliRunner
 import numpy as np
 from PIL import Image
 
-from src.cli import app
+from dinov3_cli.cli import app
 
 runner = CliRunner()
 
@@ -33,7 +33,7 @@ def test_extract_command_mocked(mocker, tmp_path):
     mock_processor = mocker.MagicMock()
     
     mocker.patch(
-        "src.commands.extract.ModelLoader.load",
+        "dinov3_cli.commands.extract.ModelLoader.load",
         return_value=(mock_model, mock_processor)
     )
     
@@ -43,7 +43,7 @@ def test_extract_command_mocked(mocker, tmp_path):
     mock_extractor_instance.extract.return_value = dummy_features
     
     mocker.patch(
-        "src.commands.extract.FeatureExtractor",
+        "dinov3_cli.commands.extract.FeatureExtractor",
         return_value=mock_extractor_instance
     )
     

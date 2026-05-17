@@ -32,12 +32,9 @@ dev = [
   "types-ujson"
 ]
 
-# pyproject.toml additions needed:
-[tool.setuptools]
-package-dir = {"" = "src"}
-
 [tool.setuptools.packages.find]
-where = ["src"]
+include = ["dinov3_cli*"]
+exclude = ["tests*"]
 
 [project.scripts]
 dinov3-cli = "dinov3_cli.cli:app"

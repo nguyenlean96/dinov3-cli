@@ -8,8 +8,8 @@ from rich.console import Console
 
 import sys
 
-from src.core.models import ModelLoader
-from src.core.processor import FeatureExtractor
+from dinov3_cli.core.models import ModelLoader
+from dinov3_cli.core.processor import FeatureExtractor
 
 console = Console()
 

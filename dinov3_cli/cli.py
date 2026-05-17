@@ -3,7 +3,7 @@ from rich.console import Console
 from typing import Optional
 
 # Import commands
-from src.commands.extract import extract as extract_cmd
+from dinov3_cli.commands.extract import extract as extract_cmd
 
 console = Console()
 
