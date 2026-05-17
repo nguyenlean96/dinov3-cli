@@ -7,10 +7,6 @@ from PIL import Image
 from rich.console import Console
 
 import sys
-import os
-
-# Add src to python path to avoid import errors in development
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from src.core.models import ModelLoader
 from src.core.processor import FeatureExtractor
