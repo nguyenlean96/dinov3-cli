@@ -5,7 +5,7 @@ import sys
 import os
 
 # Add the current directory to path to find the package
-if getattr(sys, "frozen", False):
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     # Running as compiled executable
     os.chdir(sys._MEIPASS)
     sys.path.insert(0, sys._MEIPASS)
