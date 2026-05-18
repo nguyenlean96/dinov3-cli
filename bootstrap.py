@@ -5,7 +5,7 @@ import sys
 import os
 
 # Add the current directory to path to find the package
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     # Running as compiled executable
     os.chdir(sys._MEIPASS)
     sys.path.insert(0, sys._MEIPASS)
@@ -13,5 +13,5 @@ if getattr(sys, 'frozen', False):
 # Now import and call the entry point
 from dinov3_cli.cli import app
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app()
