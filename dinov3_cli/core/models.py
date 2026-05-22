@@ -31,7 +31,7 @@ class ModelLoader:
         load_kwargs = {}
         processor_kwargs = {}
 
-        if cache_dir != None:
+        if cache_dir is not None:
             load_kwargs["cache_dir"] = cache_dir
             processor_kwargs["cache_dir"] = cache_dir
 
