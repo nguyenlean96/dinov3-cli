@@ -22,8 +22,9 @@ def test_extract_command_help():
     clean_output = click.unstyle(result.output)
     
     assert "Extract dense features from images" in clean_output
+    assert "model" in clean_output
+    assert "Model name or path" in clean_output
     assert "--pool" in clean_output
-    assert "--model" in clean_output
 
 def test_extract_command_mocked(mocker, tmp_path):
     """Test the extract command with mocked models to avoid downloading weights."""
@@ -54,7 +55,7 @@ def test_extract_command_mocked(mocker, tmp_path):
     
     # 3. Test saving to .npy output
     out_npy = tmp_path / "out.npy"
-    result = runner.invoke(app, ["extract", str(test_img_path), "-o", str(out_npy)])
+    result = runner.invoke(app, ["extract", str(test_img_path), "dinov3-vitl16-pretrain-lvd1689m", "-o", str(out_npy)])
     
     assert result.exit_code == 0
     assert out_npy.exists()
