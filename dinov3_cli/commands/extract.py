@@ -1,4 +1,5 @@
 import json
+import struct
 from pathlib import Path
 from typing import Optional
 import typer
@@ -21,7 +22,7 @@ def extract(
     image: Path = typer.Argument(
         ..., help="Path to input image file", exists=True, file_okay=True, dir_okay=False, readable=True
     ),
-    model: str = typer.Option("facebook/dinov3-vitl16-pretrain-lvd1689m", help="Model name or path"),
+    model: str = typer.Argument(help="Model name or path"),
     pool: bool = typer.Option(False, "--pool/--no-pool", help="Whether to pool features into a single embedding"),
     output: Optional[Path] = typer.Option(
         None, "-o", "--output", help="Output file (.npy or .json). Defaults to stdout as JSON if not provided."
@@ -57,6 +58,10 @@ def extract(
                 console.print(
                     f"[bold green]✓[/bold green] Features saved to [cyan]{output}[/cyan] with shape {features.shape}"
                 )
+            elif output.suffix == ".bin":
+                with open(output, "wb") as f:
+                    f.write(struct.pack("iii", *features.shape))  # header
+                    f.write(features.astype(np.float32).tobytes())  # data
             else:
                 console.print(
                     f"[bold yellow]Warning:[/bold yellow] Unknown extension '{output.suffix}'. Defaulting to numpy format."
