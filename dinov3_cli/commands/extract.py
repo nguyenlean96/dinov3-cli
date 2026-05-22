@@ -22,7 +22,7 @@ def extract(
     image: Path = typer.Argument(
         ..., help="Path to input image file", exists=True, file_okay=True, dir_okay=False, readable=True
     ),
-    model: Path = typer.Argument(help="Model name or path"),
+    model: str = typer.Argument(help="Model name or path"),
     pool: bool = typer.Option(False, "--pool/--no-pool", help="Whether to pool features into a single embedding"),
     output: Optional[Path] = typer.Option(
         None, "-o", "--output", help="Output file (.npy or .json). Defaults to stdout as JSON if not provided."

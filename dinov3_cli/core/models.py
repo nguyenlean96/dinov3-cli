@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Union, Tuple
+from typing import Optional, Union, Tuple, Dict, Any
 from transformers import AutoImageProcessor, AutoModel
 import logging
 
@@ -28,8 +28,8 @@ class ModelLoader:
         """
         logger.info(f"Loading model '{model_name}' on {device}")
 
-        load_kwargs = {}
-        processor_kwargs = {}
+        load_kwargs: Dict[str, Any] = {}
+        processor_kwargs: Dict[str, Any] = {}
 
         if cache_dir is not None:
             load_kwargs["cache_dir"] = cache_dir
