@@ -65,7 +65,7 @@ async def lifespan(app: FastAPI):
         model_name=_current_model_name,
         device=_device,
     )
-    
+
     yield
     # Shutdown cleanup
     _model = None
@@ -73,6 +73,7 @@ async def lifespan(app: FastAPI):
     _current_model_name = None
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
+
 
 # FastAPI app with lifespan
 app = FastAPI(
@@ -115,9 +116,7 @@ async def extract_features(request: ExtractRequest) -> ExtractResponse:
     global _model, _processor, _current_model_name, _device
 
     # Lazy load model if not already loaded or if model changed
-    if _model is None or (
-        request.model_name is not None and _current_model_name != request.model_name
-    ):
+    if _model is None or (request.model_name is not None and _current_model_name != request.model_name):
         logger.info(f"Loading model '{request.model_name}' on {request.device}")
         _model, _processor = ModelLoader.load(
             model_name=request.model_name,
