@@ -6,6 +6,16 @@ from PyInstaller.utils.hooks import collect_all, collect_submodules, collect_dat
 # Collect all dependencies for ML packages
 # ============================================================
 
+# FastAPI and uvicorn for API server
+datas_fastapi, binaries_fastapi, hiddenimports_fastapi = collect_all('fastapi')
+hiddenimports_uvicorn = collect_submodules('uvicorn')  # uvicorn uses submodules
+
+# Pydantic for request/response models
+datas_pydantic, binaries_pydantic, hiddenimports_pydantic = collect_all('pydantic')
+
+# Pillow for image handling in API
+datas_pillow, binaries_pillow, hiddenimports_pillow = collect_all('PIL')
+
 # PyTorch - collect everything including CUDA (even if you don't use it, safer to include)
 datas_torch, binaries_torch, hiddenimports_torch = collect_all('torch')
 datas_torchvision, binaries_torchvision, hiddenimports_torchvision = collect_all('torchvision')
@@ -38,14 +48,16 @@ datas = (
     datas_torch + datas_torchvision + 
     datas_transformers + datas_huggingface_hub + 
     datas_tokenizers + datas_numpy + 
-    datas_rich + datas_typer
+    datas_rich + datas_typer +
+    datas_fastapi + datas_pydantic + datas_pillow
 )
 
 binaries = (
     binaries_torch + binaries_torchvision + 
     binaries_transformers + binaries_huggingface_hub + 
     binaries_tokenizers + binaries_numpy + 
-    binaries_rich + binaries_typer
+    binaries_rich + binaries_typer +
+    binaries_fastapi + binaries_pydantic + binaries_pillow
 )
 
 hiddenimports = (
@@ -53,11 +65,16 @@ hiddenimports = (
     hiddenimports_transformers + hiddenimports_transformers_extra +
     hiddenimports_huggingface_hub + hiddenimports_tokenizers +
     hiddenimports_numpy + hiddenimports_rich + hiddenimports_typer +
+    hiddenimports_fastapi +
+    hiddenimports_uvicorn +
+    hiddenimports_pydantic +
+    hiddenimports_pillow +
     [
         # Your package imports
         'dinov3_cli',
         'dinov3_cli.cli',
         'dinov3_cli.commands',
+        'dinov3_cli.commands.api',
         'dinov3_cli.commands.extract',
         'dinov3_cli.core',
         'dinov3_cli.core.models',

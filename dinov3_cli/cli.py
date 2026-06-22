@@ -4,6 +4,7 @@ from typing import Optional
 
 # Import commands
 from dinov3_cli.commands.extract import extract as extract_cmd
+from dinov3_cli.commands.api import api as api_cli
 
 console = Console()
 
@@ -18,6 +19,7 @@ app = typer.Typer(
 # Register subcommands
 # Extract command uses callback directly, so we can wrap it as a command here
 app.command(name="extract", help="Extract dense features from images using DINOv3 backbones.")(extract_cmd)
+app.command(name="api", help="Start API server")(api_cli)
 
 
 @app.callback()
