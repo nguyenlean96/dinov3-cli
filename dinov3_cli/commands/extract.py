@@ -1,13 +1,13 @@
 import json
 import struct
+import sys
 from pathlib import Path
-from typing import Optional
-import typer
+from typing import Literal, Optional
+
 import numpy as np
+import typer
 from PIL import Image
 from rich.console import Console
-
-import sys
 
 from dinov3_cli.core.models import ModelLoader
 from dinov3_cli.core.processor import FeatureExtractor
@@ -23,7 +23,9 @@ def extract(
         ..., help="Path to input image file", exists=True, file_okay=True, dir_okay=False, readable=True
     ),
     model: str = typer.Argument(help="Model name or path"),
-    pool: bool = typer.Option(False, "--pool/--no-pool", help="Whether to pool features into a single embedding"),
+    pool: Literal["none", "cls", "mean"] = typer.Option(
+        "none", "--pool", help="Pooling mode: none (patch tokens), cls, or mean"
+    ),
     output: Optional[Path] = typer.Option(
         None, "-o", "--output", help="Output file (.npy or .json). Defaults to stdout as JSON if not provided."
     ),

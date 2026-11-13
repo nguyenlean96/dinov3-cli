@@ -1,14 +1,14 @@
-import io
 import asyncio
 import base64
+import io
 import logging
-import torch
-from typing import Optional
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated, Literal, Optional
 
+import torch
 import typer
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from pydantic import BaseModel, Field
@@ -27,7 +27,9 @@ class ExtractRequest(BaseModel):
 
     image: str = Field(..., description="Image file path or base64-encoded image data")
     model_name: Optional[str] = Field(default=None, description="HuggingFace model name or local path")
-    pool: bool = Field(False, description="Whether to pool features into a single embedding")
+    pool: Literal["none", "cls", "mean"] = Field(
+        default="none", description="Whether to pool features into a single embedding"
+    )
     device: str = Field("cpu", description="Device to use (cpu, cuda, mps)")
 
 
@@ -106,6 +108,31 @@ async def health_check() -> HealthResponse:
     )
 
 
+@app.post("/extract/upload", response_model=ExtractResponse)
+async def extract_upload(
+    image: UploadFile, pool: Annotated[Literal["none", "cls", "mean"], Form()] = "none"
+) -> ExtractResponse:
+    global _model, _processor, _current_model_name, _device
+
+    if pool not in ["none", "cls", "mean"]:
+        raise HTTPException(status_code=500, detail="invalid request")
+
+    img_data = await image.read()
+
+    def do_extract():
+        pil_image = Image.open(io.BytesIO(img_data)).convert("RGB")
+        extractor = FeatureExtractor(model=_model, processor=_processor, device=_device)
+        return extractor.extract(image=pil_image, pool=pool)
+
+    features = await asyncio.to_thread(do_extract)
+
+    return ExtractResponse(
+        features=features.flatten().tolist(),
+        shape=features.shape,
+        dtype=str(features.dtype),
+    )
+
+
 @app.post("/extract", response_model=ExtractResponse)
 async def extract_features(request: ExtractRequest) -> ExtractResponse:
     """
@@ -129,17 +156,21 @@ async def extract_features(request: ExtractRequest) -> ExtractResponse:
     try:
         if request.image.startswith("data:image"):
             # Handle data URL format: data:image/png;base64,xxxxx
-            header, data = request.image.split(",", 1)
+            _header, data = request.image.split(",", 1)
             img_data = base64.b64decode(data)
             image = Image.open(io.BytesIO(img_data)).convert("RGB")
         elif Path(request.image).exists():
             # Handle file path
             image = Image.open(request.image).convert("RGB")
+        elif "/" in request.image[:256] and "." in Path(request.image[:256]).name:
+            # Looks like a file path that doesn't exist; don't fall through to base64
+            raise FileNotFoundError(f"Image file not found: {request.image}")
         else:
             # Try as base64 directly
-            img_data = base64.b64decode(request.image)
+            img_data = base64.b64decode(request.image, validate=True)
             image = Image.open(io.BytesIO(img_data)).convert("RGB")
     except Exception as e:
+        logger.warning(f"Failed to load image ({request.image[:120]!r}): {e}")
         raise HTTPException(status_code=400, detail=f"Failed to load image: {str(e)}")
 
     # Extract features in thread to avoid blocking

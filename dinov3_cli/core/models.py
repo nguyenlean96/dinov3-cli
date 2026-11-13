@@ -36,10 +36,12 @@ class ModelLoader:
             processor_kwargs["cache_dir"] = cache_dir
 
         model_path = Path(model_name)
-        resolved_path = str(model_path.resolve())
+        # Only resolve real local dirs; resolving a hub ID ("org/name") turns it into a bogus absolute path
+        resolved_path = model_name
 
         # Check if loading from local path
         if model_path.exists() and model_path.is_dir():
+            resolved_path = str(model_path.resolve())
             load_kwargs["local_files_only"] = True
             load_kwargs["trust_remote_code"] = True  # Required for DINOv3's custom architecture
             processor_kwargs["local_files_only"] = True
