@@ -4,11 +4,11 @@ import io
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 import torch
 import typer
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from pydantic import BaseModel, Field
@@ -105,6 +105,31 @@ async def health_check() -> HealthResponse:
         version="1.0.0",
         model_loaded=_model is not None,
         model_name=_current_model_name,
+    )
+
+
+@app.post("/extract/upload", response_model=ExtractResponse)
+async def extract_upload(
+    image: UploadFile, pool: Annotated[Literal["none", "cls", "mean"], Form()] = "none"
+) -> ExtractResponse:
+    global _model, _processor, _current_model_name, _device
+
+    if pool not in ["none", "cls", "mean"]:
+        raise HTTPException(status_code=500, detail="invalid request")
+
+    img_data = await image.read()
+
+    def do_extract():
+        pil_image = Image.open(io.BytesIO(img_data)).convert("RGB")
+        extractor = FeatureExtractor(model=_model, processor=_processor, device=_device)
+        return extractor.extract(image=pil_image, pool=pool)
+
+    features = await asyncio.to_thread(do_extract)
+
+    return ExtractResponse(
+        features=features.flatten().tolist(),
+        shape=features.shape,
+        dtype=str(features.dtype),
     )
 
 
