@@ -66,4 +66,4 @@ def test_extract_command_mocked(mocker, tmp_path):
     # 4. Verify FeatureExtractor was called with correct arguments
     mock_extractor_instance.extract.assert_called_once()
     _, kwargs = mock_extractor_instance.extract.call_args
-    assert kwargs.get("pool") is False # default
+    assert kwargs.get("pool") is "none" # default

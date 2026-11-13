@@ -4,7 +4,7 @@ import io
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import torch
 import typer
@@ -27,7 +27,9 @@ class ExtractRequest(BaseModel):
 
     image: str = Field(..., description="Image file path or base64-encoded image data")
     model_name: Optional[str] = Field(default=None, description="HuggingFace model name or local path")
-    pool: bool = Field(False, description="Whether to pool features into a single embedding")
+    pool: Literal["none", "cls", "mean"] = Field(
+        default="none", description="Whether to pool features into a single embedding"
+    )
     device: str = Field("cpu", description="Device to use (cpu, cuda, mps)")
 
 
