@@ -1,12 +1,12 @@
-import io
 import asyncio
 import base64
+import io
 import logging
-import torch
-from typing import Optional
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Optional
 
+import torch
 import typer
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -129,17 +129,21 @@ async def extract_features(request: ExtractRequest) -> ExtractResponse:
     try:
         if request.image.startswith("data:image"):
             # Handle data URL format: data:image/png;base64,xxxxx
-            header, data = request.image.split(",", 1)
+            _header, data = request.image.split(",", 1)
             img_data = base64.b64decode(data)
             image = Image.open(io.BytesIO(img_data)).convert("RGB")
         elif Path(request.image).exists():
             # Handle file path
             image = Image.open(request.image).convert("RGB")
+        elif "/" in request.image[:256] and "." in Path(request.image[:256]).name:
+            # Looks like a file path that doesn't exist; don't fall through to base64
+            raise FileNotFoundError(f"Image file not found: {request.image}")
         else:
             # Try as base64 directly
-            img_data = base64.b64decode(request.image)
+            img_data = base64.b64decode(request.image, validate=True)
             image = Image.open(io.BytesIO(img_data)).convert("RGB")
     except Exception as e:
+        logger.warning(f"Failed to load image ({request.image[:120]!r}): {e}")
         raise HTTPException(status_code=400, detail=f"Failed to load image: {str(e)}")
 
     # Extract features in thread to avoid blocking
